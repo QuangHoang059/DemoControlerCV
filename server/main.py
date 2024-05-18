@@ -15,6 +15,7 @@ from keras.layers import (
     Flatten
 )
 import joblib
+from flask_socketio import SocketIO, emit
 img_size=(224,224)
 class VGGFeatureExtractor(BaseEstimator, TransformerMixin):
     def __init__(self):
@@ -41,9 +42,8 @@ LR_pipeline = Pipeline([
 ])
 
 app = Flask(__name__)
-
-cors = CORS(app)
-
+CORS(app)
+socketio = SocketIO(app, cors_allowed_origins="*")
 
 @app.route('/', methods=['POST'])
 def load():
@@ -57,6 +57,12 @@ def load():
     
     return jsonify(dataimage)
 
-
+@socketio.on('image')
+def handle_message(data):
+    image_data = np.array(data['data'], dtype=np.uint8)
+    pred = LR_pipeline.predict(np.asarray([image_data]))[0]
+    dataimage = {'key': int(pred)}
+    emit('response', dataimage)
+    
 if __name__ == "__main__":
-    app.run(debug=True,port=50001)
+    socketio.run(app, debug=True, port=50001)
