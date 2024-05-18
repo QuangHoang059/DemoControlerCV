@@ -54,7 +54,7 @@ def load():
 
  
     dataimage = {'key': int(pred)}
-
+    
     return jsonify(dataimage)
 
 
