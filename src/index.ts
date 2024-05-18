@@ -108,6 +108,9 @@ document.addEventListener(
 );
 
 const clock = new THREE.Clock();
+
+
+
 const startButton = document.getElementById("start") as HTMLButtonElement;
 const stopButton = document.getElementById("stop") as HTMLButtonElement;
 const preview = document.getElementById("preview") as HTMLVideoElement;
@@ -128,6 +131,7 @@ navigator.mediaDevices
   });
 const DELAY = 500 as const; //ms
 const PING = 10 as const; //ms
+
 // Start capturing images every 2 seconds
 let startAnimate = false;
 const intervalId = setInterval(() => {

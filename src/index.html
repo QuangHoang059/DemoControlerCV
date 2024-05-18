@@ -11,10 +11,10 @@
   </head>
   <body>
     <div id="content" style="position: fixed">
-      <video id="preview" autoplay playsinline></video>
+      <video id="preview" style=" transform: scale(-1, 1); -webkit-transform: scale(-1, 1);" autoplay playsinline></video>
       <button id="start">Start Capturing</button>
       <button id="stop" disabled>Stop Capturing</button>
-      <img id="captures"></img>
+      <img id="captures" style=" transform: scale(-1, 1); -webkit-transform: scale(-1, 1);" ></img>
       <canvas id="canvas" style="display: none"></canvas>
     </div>
 

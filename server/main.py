@@ -50,6 +50,7 @@ def load():
 
     data = request.get_json()
     image_data = np.array(data['data'], dtype=np.uint8)
+    image_data=cv2.flip(image_data, 1)
     pred= LR_pipeline.predict(np.asarray([image_data]))[0]
 
  
@@ -60,6 +61,8 @@ def load():
 @socketio.on('image')
 def handle_message(data):
     image_data = np.array(data['data'], dtype=np.uint8)
+    image_data=cv2.flip(image_data, 1)
+    cv2.imwrite('name.png',image_data)
     pred = LR_pipeline.predict(np.asarray([image_data]))[0]
     dataimage = {'key': int(pred)}
     emit('response', dataimage)
