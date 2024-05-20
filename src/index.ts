@@ -109,8 +109,6 @@ document.addEventListener(
 
 const clock = new THREE.Clock();
 
-
-
 const startButton = document.getElementById("start") as HTMLButtonElement;
 const stopButton = document.getElementById("stop") as HTMLButtonElement;
 const preview = document.getElementById("preview") as HTMLVideoElement;
@@ -240,6 +238,13 @@ socket.on("response", (data: any) => {
   }
   lastMove = newKey;
   console.log(lastMove);
+  const imgElement = document.getElementById("hand");
+  if (data.img) {
+    const imgBase64 = data.img;
+    (imgElement as HTMLImageElement).src = "data:image/png;base64," + imgBase64;
+  } else {
+    (imgElement as HTMLImageElement).src = "./unavailable.png";
+  }
 });
 
 socket.on("disconnect", () => {

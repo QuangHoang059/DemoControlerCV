@@ -16,7 +16,29 @@ from keras.layers import (
 )
 import joblib
 from flask_socketio import SocketIO, emit
+from cvzone.HandTrackingModule import HandDetector
+
 img_size=(224,224)
+offset = 20
+def detectHand(img):
+    hand, img = detector.findHands(img, draw=False)
+    if hand:
+        hand = hand[0]
+        x, y, w, h = hand['bbox']
+        padding = abs(h - w) / 2
+        x_start = x - math.ceil(padding) - offset
+        x_end = x + w + math.floor(padding) + offset
+        y_start = y - offset
+        y_end = y + h + offset
+        if h > w:
+            imgCrop = img[y_start:y_end, x_start:x_end]
+        else:
+            imgCrop = img[x_start:x_end, y_start:y_end]
+        if imgCrop is not None and imgCrop.shape[0] * imgCrop.shape[1] != 0:
+            imgCrop = cv2.resize(imgCrop, img_size)
+        return imgCrop
+    return img
+    
 class VGGFeatureExtractor(BaseEstimator, TransformerMixin):
     def __init__(self):
         IMG_SHAPE = (img_size[0], img_size[1], 3)
@@ -58,14 +80,20 @@ def load():
     
     return jsonify(dataimage)
 
+detector = HandDetector(maxHands=1)
 @socketio.on('image')
 def handle_message(data):
     image_data = np.array(data['data'], dtype=np.uint8)
-    image_data=cv2.flip(image_data, 1)
-    cv2.imwrite('name.png',image_data)
-    pred = LR_pipeline.predict(np.asarray([image_data]))[0]
-    dataimage = {'key': int(pred)}
-    emit('response', dataimage)
+    # image_data = cv2.flip(image_data, 1)
+    img = detectHand(image_data)
+    # cv2.imwrite('name.png', img)
+    pred = LR_pipeline.predict(np.asarray([img]))[0]
+    # Convert the image to bytes
+    _, img_encoded = cv2.imencode('.png', img)
+    # Convert the bytes to a base64 string
+    img_base64 = base64.b64encode(img_encoded).decode('utf-8')
+    res = {'key': int(pred), 'img': img_base64}
+    emit('response', res)
     
 if __name__ == "__main__":
     socketio.run(app, debug=True, port=50001)
