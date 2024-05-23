@@ -19,7 +19,7 @@ from flask_socketio import SocketIO, emit
 from cvzone.HandTrackingModule import HandDetector
 
 img_size=(224,224)
-offset = 20
+offset = 10
 def detectHand(img):
     hand, img = detector.findHands(img, draw=False)
     if hand:
@@ -36,8 +36,8 @@ def detectHand(img):
             imgCrop = img[x_start:x_end, y_start:y_end]
         if imgCrop is not None and imgCrop.shape[0] * imgCrop.shape[1] != 0:
             imgCrop = cv2.resize(imgCrop, img_size)
-        return imgCrop
-    return img
+        return [imgCrop, True]
+    return [img, False]
     
 class VGGFeatureExtractor(BaseEstimator, TransformerMixin):
     def __init__(self):
@@ -85,11 +85,14 @@ detector = HandDetector(maxHands=1)
 def handle_message(data):
     image_data = np.array(data['data'], dtype=np.uint8)
     # image_data = cv2.flip(image_data, 1)
-    img = detectHand(image_data)
-    # cv2.imwrite('name.png', img)
-    pred = LR_pipeline.predict(np.asarray([img]))[0]
+    image, exist = detectHand(image_data)
+    if exist:
+        # cv2.imwrite('name.png', img)
+        pred = LR_pipeline.predict(np.asarray([image]))[0]
+    else:
+        pred = 3
     # Convert the image to bytes
-    _, img_encoded = cv2.imencode('.png', img)
+    _, img_encoded = cv2.imencode('.png', image)
     # Convert the bytes to a base64 string
     img_base64 = base64.b64encode(img_encoded).decode('utf-8')
     res = {'key': int(pred), 'img': img_base64}

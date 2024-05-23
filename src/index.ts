@@ -128,7 +128,7 @@ navigator.mediaDevices
     console.error("Error accessing media devices.", error);
   });
 const DELAY = 500 as const; //ms
-const PING = 10 as const; //ms
+const PING = 24 as const; //ms
 
 // Start capturing images every 2 seconds
 let startAnimate = false;
@@ -335,7 +335,7 @@ function generateFloor() {
   const WIDTH = 80;
   const LENGTH = 80;
 
-  const geometry = new THREE.PlaneGeometry(WIDTH, LENGTH, 512, 512);
+  const geometry = new THREE.PlaneGeometry(WIDTH, LENGTH, 1024, 1024);
   const material = new THREE.MeshStandardMaterial({
     map: sandBaseColor,
     normalMap: sandNormalMap,
